@@ -6,10 +6,9 @@ def find_neighbors_distance_1(vector):
     neighbors = []
     n = len(vector)
     for i in range(n):
-        if vector[i] == 0:  # Проверка, чтобы изменить только позиции с 0 на 1
-            modified_vector = vector.copy()
-            modified_vector[i] = 1
-            neighbors.append(modified_vector)
+        neighbor = vector.copy()
+        neighbor[i] = 1 - neighbor[i]
+        neighbors.append(neighbor)
     return neighbors
 def find_neighbors_distance_2(vector):
     neighbors = []
@@ -110,21 +109,6 @@ def first_criterion(f , vector):
     result = term1 + term2
     return result
 
-def VND():
-    first_vector = generate_first_vector(n,facility_amount)
-    first_new_b = find_new_b(b,c, first_vector)
-    first_price = SP(first_new_b)
-    best_price = first_price
-    best_vector = first_vector
-    for vector in find_neighbors_distance_1(first_vector):
-        new_vector_b = find_new_b(b, c ,vector)
-        temp_price = SP(new_vector_b)
-        temp_ro = RF(new_vector_b)
-        temp_X = find_X(b,c, temp_ro, temp_price, vector)
-
-
-
-
 def generate_f(n):
     random.seed(42)
     return np.random.randint(0, 100, size=n)
@@ -135,15 +119,64 @@ with open('input.txt', 'r') as file:
     line = file.readline().strip()
     numbers = line.split()
     # Присваиваем значения переменным
-    n = int(numbers[0]) # кол-во предприятий
+    n = int(numbers[0])  # кол-во предприятий
     m = int(numbers[1])  # кол-во клиентов
-    facility_amount = int(numbers[2])  # кол-во открываемых предприятий
+facility_amount = int(numbers[2])  # кол-во открываемых предприятий
 
 b = np.loadtxt('input_b.txt')
 c = np.loadtxt('input_c.txt')
-
+T = 100
 f = generate_f(n)
 V = 100
+
+
+def generate_f(n):
+    random.seed(42)
+    return np.random.randint(0, 100, size=n)
+
+
+
+def VND():
+    T = 100
+    i = 0
+    for i in range(T):
+        if i == 0:
+            first_vector = generate_first_vector(n, facility_amount)
+            first_new_b = find_new_b(b, c, first_vector)
+            first_price = SP(first_new_b)
+            best_price = first_price
+            best_vector = first_vector
+            neighbors = find_neighbors_distance_1(best_vector)
+        if i > 0:
+            for j in range(len(neighbors)):
+                if(first_criterion(f, neighbors[j])) > first_criterion(f, best_vector):
+                    print(first_criterion(f, neighbors[j]))
+                    print(first_criterion(f,best_vector))
+                    best_vector = neighbors[j]
+                    best_price = SP(find_new_b(b, c, best_vector))
+
+
+
+
+
+
+
+
+
+
+
+def generate_f(n):
+    random.seed(42)
+    return np.random.randint(0, 100, size=n)
+
+
+
+
+
+VND()
+
+
+
 
 #np.set_printoptions(threshold=sys.maxsize)
 
