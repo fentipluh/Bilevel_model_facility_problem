@@ -127,9 +127,9 @@ def first_criterion(f , vector):
 def generate_f(n):
     random.seed(42)
     return np.random.randint(0, 100, size=n)
-def local_search_RF(y):
+def local_search_RF(y, k):
     best_y = y
-    neighbors = k_swap_neighborhood(y, 5, 1)
+    neighbors = k_shake(y, k)
     best_b = find_new_b(b, c, best_y)
     for neighbor in neighbors:
         temp_b = find_new_b(b, c, neighbor)
@@ -158,15 +158,16 @@ V = 100
 
 def VND_2(Imax, k):
     I = 0
-    y = generate_first_vector(n,5)  # Step 0: Generate initial Boolean vector y
+    y = generate_first_vector(n,5)
     print(RF(find_new_b(b,c,y)))
     print(y)
     while I < Imax:
-        y_star = local_search_RF(y)  # Step 1: Apply local search to 1-Swap(y)
+        y_star = local_search_RF(y,1)
         I += 1
         if I > Imax or hamming_distance(y, y_star) == 0:
-            break  # If no improvement or maximum iterations reached, stop
-    return y_star  # Return the best found facility location y
+            break
+
+    return y_star
 
 y_star = VND_2(100, 1)
 print(y_star)
