@@ -108,15 +108,8 @@ def RF(new_b):
 
         i += 1
     return rho_star
-# def generate_first_vector(n):
-#     vector = np.zeros(n)  # Создаем вектор размера n, заполненный нулями
-#     indices = np.random.choice(range(n), facility_amount, replace=False)  # Выбираем случайные индексы без повторений
-#     vector[indices] = 1  # Устанавливаем единички в выбранных индексах
-#     return vector
-
 def generate_first_vector(n):
     return np.random.randint(0, 2, size=n)
-
 
 def first_criterion(f , vector):
     new_b = find_new_b(b, c, vector)
@@ -126,7 +119,6 @@ def first_criterion(f , vector):
     # Вычисление итогового значения формулы
     result = term1 + term2
     return result
-
 def generate_f(n):
     random.seed(42)
     return np.random.randint(0, 100, size=n)
@@ -163,23 +155,22 @@ V = 5
 def VND_2(Imax, k):
     I = 0
     y = generate_first_vector(n)
-    print(RF(find_new_b(b,c,y)))
-    print(y)
+    # print(RF(find_new_b(b,c,y)))
+    # print(y)
     while I < Imax:
-        y_star = local_search_RF(y,1)
+        y_star = local_search_RF(y, k)
+        #print(f"{y}, {I}: {y_star}")
         I += 1
         if I > Imax or hamming_distance(y, y_star) == 0:
             break
 
     return y_star
+def main():
+    y_star = VND_2(100, 1)
+    y_star = VND_2(100, 2)
+    y_star = VND_2(100, 3)
+    print(y_star)
+    b_star = find_new_b(b,c,y_star)
+    print(RF(b_star))
 
-y_star = VND_2(1000, 1)
-y_star = VND_2(1000, 2)
-y_star = VND_2(1000, 3)
-print(y_star)
-b_star = find_new_b(b,c,y_star)
-print(RF(b_star))
-#y_template = np.array([0 ,0 ,0 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0])
-#b_template = find_new_b(b,c, y_template)
-
-#print(RF(b_template))
+main()

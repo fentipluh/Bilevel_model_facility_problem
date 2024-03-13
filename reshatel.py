@@ -15,7 +15,7 @@ V = 5
 c = np.loadtxt('input_c.txt')
 b = np.loadtxt('input_b.txt')
 
-W = 120
+W = 101
 
 model = Model(sense=MAXIMIZE, solver_name=CBC)
 model.verbose = 0
@@ -24,10 +24,10 @@ model.verbose = 0
 p = model.add_var()
 rho = model.add_var()
 x = [[model.add_var(var_type=BINARY) for j in range(m)] for i in range(n)]
-#y = [ model.add_var(name = 'y', var_type=BINARY) for i in range(n) ]
+y = [ model.add_var(name = 'y', var_type=BINARY) for i in range(n) ]
 z = [[model.add_var(var_type=INTEGER) for j in range(m)] for i in range(n)]
 r = [[model.add_var(var_type=INTEGER) for j in range(m)] for i in range(n)]
-y = [1 ,0 ,0 ,1 ,0 ,1 ,1 ,0 ,1 ,1 ,0 ,0 ,1 ,0 ,1]
+#y = [1 ,0 ,0 ,1 ,0 ,1 ,1 ,0 ,1 ,1 ,0 ,0 ,1 ,0 ,1]
 #objective function
 model.objective = maximize(rho) #1
 
