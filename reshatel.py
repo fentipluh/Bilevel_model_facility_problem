@@ -1,64 +1,75 @@
 from itertools import product
 from sys import stdout as out
-
 from mip import *
 import numpy as np
+
 
 with open('input.txt', 'r') as file:
     data = file.readline().strip().split()
     n = int(data[0])
     m = int(data[1])
 
-f= [10] * n
-
-V = 50
+f= [0] * n
+V = 5
 
 c = np.loadtxt('input_c.txt')
 b = np.loadtxt('input_b.txt')
-W = 100
-M = 100
 
-model = Model(solver_name="CBC")
+W = 120
+
+model = Model(sense=MAXIMIZE, solver_name=CBC)
 model.verbose = 0
-x = [[model.add_var(var_type=BINARY) for j in range(m)] for i in range(n)]
-p = model.add_var(var_type=INTEGER)
-y = [model.add_var(var_type=BINARY) for i in range(n)]
+#variables
+
+p = model.add_var()
 rho = model.add_var()
-z = [[model.add_var() for j in range(m)] for i in range(n)]
-r = [[model.add_var(var_type="CONTINUOUS") for j in range(m)] for i in range(n)]
+x = [[model.add_var(var_type=BINARY) for j in range(m)] for i in range(n)]
+#y = [ model.add_var(name = 'y', var_type=BINARY) for i in range(n) ]
+z = [[model.add_var(var_type=INTEGER) for j in range(m)] for i in range(n)]
+r = [[model.add_var(var_type=INTEGER) for j in range(m)] for i in range(n)]
+y = [1 ,0 ,0 ,1 ,0 ,1 ,1 ,0 ,1 ,1 ,0 ,0 ,1 ,0 ,1]
+#objective function
+model.objective = maximize(rho) #1
 
-# Целевая функция
-model.objective = maximize(rho)
+# constraints
 
-# Ограничения
+#model += xsum(z[i][j] - (f[i]*y[i]) for i in range (n) for j in range(m)) >= V #(2)
+#model += xsum((z[i][j] for i in range (n) for j in range (m)) - ((f[i]*y[i]) for i in range (n) for j in range (m)))
+model += (xsum(z[i][j] for i in range (n) for j in range(m)) - xsum(f[i]*y[i] for i in range(n))) >= V #(2)
 
+#model += xsum(y[i] for i in range (n)) == 3
 
 for i in range(n):
-    model += xsum(x[i][j] for j in range(m)) == y[i]  # (3)
     for j in range(m):
-        model += z[i][j] <= p
-        model += z[i][j] >= z[i][j]-(1-x[i][j])*M
-        model += z[i][j] <= M*x[i][j]
+        model += x[i][j] <= y[i] #(4)
 
-        model += r[i][j] <= rho
-        model += r[i][j] >= r[i][j] - (1 - x[i][j]) * M
-        model += r[i][j] <= M * r[i][j]
+for j in range(m):
+    model += xsum(x[i][j] for i in range(n)) <= 1 #(5)
 
-        model += x[i][j] <= y[i]  # (4)
-        model += x[i][j] <= 1  # (5)
+for j in range(m):
+    model += xsum((b[j]*x[i][j] - c[i][j]*x[i][j] - r[i][j] - z[i][j]) for i in range(n)) >= 0 #(6)
 
-        model += b[j]*x[i][j] - c[i][j]*x[i][j] - r[i][j] - z[i][j] >= 0  # (6)
-        model += c[i][j] * x[i][j] <= c[i][j] + (1 - y[i]) * W  # (7)
+for k in range(n):
+    for j in range(m):
+        model += xsum((c[i][j]*x[i][j]) for i in range(n)) <= c[k][j] + ((1-y[k])*W) #(7)
 
-        model += (1 - x[i][j]) * W + z[i][j] >= p  # (9)
-        model += (1 - x[i][j]) * W + p >= z[i][j]  # (10)
-        model += z[i][j] <= x[i][j] * W  # (11)
-        model += z[i][j] >= 0  # (12)
-        model += (1 - x[i][j]) * W + r[i][j] >= rho  # (13)
-        model += (1 - x[i][j]) * W + rho >= r[i][j]  # (14)
-        model += r[i][j] <= x[i][j] * W  # (15)
-        model += r[i][j] >= 0  # (16)
+for i in range(n):
+    for j in range(m):
 
-# Решение задачи
+        model += ((1-x[i][j])*W + z[i][j]) >= p
+        model += ((1-x[i][j])*W + p) >= z[i][j]
+        model += z[i][j] <= (x[i][j] * W)
+        model += z[i][j] >= 0
+
+        model += ((1 - x[i][j]) * W + r[i][j]) >= rho
+        model += ((1 - x[i][j]) * W + rho) >= r[i][j]
+        model += r[i][j] <= (x[i][j] * W)
+        model += r[i][j] >= 0
+
 model.optimize()
 print(model.objective_value)
+print("Значения вектора y:")
+for var in model.vars:
+    if var.name[0] == "y":
+        print(f"{var.name} = {var.x}")
+

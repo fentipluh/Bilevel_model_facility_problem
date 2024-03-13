@@ -108,11 +108,14 @@ def RF(new_b):
 
         i += 1
     return rho_star
-def generate_first_vector(n, facility_amount):
-    vector = np.zeros(n)  # Создаем вектор размера n, заполненный нулями
-    indices = np.random.choice(range(n), facility_amount, replace=False)  # Выбираем случайные индексы без повторений
-    vector[indices] = 1  # Устанавливаем единички в выбранных индексах
-    return vector
+# def generate_first_vector(n):
+#     vector = np.zeros(n)  # Создаем вектор размера n, заполненный нулями
+#     indices = np.random.choice(range(n), facility_amount, replace=False)  # Выбираем случайные индексы без повторений
+#     vector[indices] = 1  # Устанавливаем единички в выбранных индексах
+#     return vector
+
+def generate_first_vector(n):
+    return np.random.randint(0, 2, size=n)
 
 
 def first_criterion(f , vector):
@@ -147,18 +150,19 @@ with open('input.txt', 'r') as file:
     # Присваиваем значения переменным
     n = int(numbers[0])  # кол-во предприятий
     m = int(numbers[1])  # кол-во клиентов
-facility_amount = int(numbers[2])  # кол-во открываемых предприятий
+#facility_amount = int(numbers[2])  # кол-во открываемых предприятий
 
 b = np.loadtxt('input_b.txt')
 c = np.loadtxt('input_c.txt')
 T = 10
-f = generate_f(n)
-V = 100
+#f = generate_f(n)
+f = [0] * n
+V = 5
 
 
 def VND_2(Imax, k):
     I = 0
-    y = generate_first_vector(n,5)
+    y = generate_first_vector(n)
     print(RF(find_new_b(b,c,y)))
     print(y)
     while I < Imax:
@@ -169,7 +173,13 @@ def VND_2(Imax, k):
 
     return y_star
 
-y_star = VND_2(100, 1)
+y_star = VND_2(1000, 1)
+y_star = VND_2(1000, 2)
+y_star = VND_2(1000, 3)
 print(y_star)
 b_star = find_new_b(b,c,y_star)
 print(RF(b_star))
+#y_template = np.array([0 ,0 ,0 ,1 ,1 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0 ,0])
+#b_template = find_new_b(b,c, y_template)
+
+#print(RF(b_template))
