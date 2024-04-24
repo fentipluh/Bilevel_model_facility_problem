@@ -1,6 +1,7 @@
 import numpy as np
 from main import RF
 from main import find_new_b
+from main import generate_first_vector
 
 # Данные для задачи
 with open('input.txt', 'r') as file:
@@ -13,46 +14,47 @@ with open('input.txt', 'r') as file:
 b = np.loadtxt('input_b.txt')
 c = np.loadtxt('input_c.txt')
 #f = generate_f(n)
-f = [0] * n
-V = 5
-population_size = 50
-Imax = 10
+f = [15] * n
+V = 30
+population_size = 10
 def generate_first_population(population_size, n):
     first_population = np.random.randint(2, size=(population_size, n))
     return first_population
 def crossover(parent1, parent2):
-    crossover_point = np.random.randint(1, len(parent1))
-    child1 = np.concatenate((parent1[:crossover_point], parent2[crossover_point:]))
-    child2 = np.concatenate((parent2[:crossover_point], parent1[crossover_point:]))
+    crossover_point_1 = np.random.randint(1, len(parent1))
+    crossover_point_2 = np.random.randint(1, len(parent2))
+    # print(f"crossover point 1: {crossover_point_1}")
+    # print(f"crossover point 2: {crossover_point_2}")
+    # print(f"parent1: {parent1}")
+    # print(f"parent2: {parent2}")
+    parent1_srez = parent1[crossover_point_1:crossover_point_2]
+    parent2_srez = parent2[crossover_point_1:crossover_point_2]
+    # print(f"parent1_srez: {parent1_srez}")
+    # print(f"parent2_srez: {parent2_srez}")
+    parent1[crossover_point_1:crossover_point_2] = parent2_srez
+    parent2[crossover_point_1:crossover_point_2] = parent1_srez
+    # print(f"parent1_new: {parent1}")
+    # print(f"parent2_new: {parent2}")
+    child1 = parent1
+    child2 = parent2
     return child1, child2
 
 def fitness_RF(b,c,population):
     fitness = []
     for i in range(len(population)):
         temp_b = find_new_b(b, c, population[i])
-        fitness.append(RF(temp_b))
+        fitness.append(RF(temp_b, population[i]))
     return np.array(fitness)
-def tournament_selection(population, fitness, tournament_size, num_parents):
-    selected_parents = []
-    for i in range(num_parents):
-        tournament_indices = np.random.choice(len(population), tournament_size, replace=False)
-        tournament = population[tournament_indices]
-        tournament_fitness = fitness[tournament_indices]
-        winner = tournament[np.argmax(tournament_fitness)]
-        selected_parents.append(winner)
-    return np.array(selected_parents)
 
 
 def tournament_selection(population, fitness, k):
     new_population = []
     population_size = len(population)
-
     while len(new_population) < population_size:
         tournament_indices = np.random.choice(population_size, k, replace=False)
         tournament = [population[i] for i in tournament_indices]
 
-        tournament_fitness = [fitness[i] for i in
-                              tournament_indices]  # Get the fitness values for the selected individuals
+        tournament_fitness = [fitness[i] for i in tournament_indices]  # Get the fitness values for the selected individuals
         best_index = np.argmax(tournament_fitness)  # Find the index of the best individual
         best_individual = tournament[best_index]  # Get the best individual from the tournament
 
@@ -63,7 +65,6 @@ def tournament_selection(population, fitness, k):
 
 def crossover_population(population):
     new_population = []
-
     while len(new_population) < len(population):
         # Случайно выбираем двух индивидуумов для кроссовера
         indices = np.random.choice(range(len(population)), 2, replace=False)
@@ -77,43 +78,35 @@ def crossover_population(population):
 
     # Обрезаем лишнее потомство, если его количество превысило исходную популяцию
     new_population = new_population[:len(population)]
-
     return new_population
 
-def find_best(population):
-    best_rho = 0
-    best_y = []
+def find_best(best_rho,best_y,population):
     for i in range(len(population)):
         temp_b = find_new_b(b, c, population[i])
-        if (best_rho < RF(temp_b)):
-            best_rho = RF(temp_b)
+        if (best_rho < RF(temp_b, population[i])):
+            best_rho = RF(temp_b, population[i])
             best_y = population[i]
     return best_rho, best_y
 
-
-
-
-# first_population = generate_first_population(population_size,n)
-# fitness_values_first = fitness_RF(b, c, first_population)
-# print(first_population)
-# print("######")
-# temp_population = tournament_selection(first_population, fitness_values_first, 2)
-# print(temp_population)
-# print("######")
-# print(crossover_population(temp_population))
-
-
-
 def genetic(Imax, tournament_size):
     population = generate_first_population(population_size, n)
+    best_rho = 0
+    best_y = generate_first_vector(n)
     for generation in range(Imax):
         fitness = fitness_RF(b, c, population)
         # Применяем турнирный отбор к текущей популяции
         selected_population = tournament_selection(population, fitness, tournament_size)
         # Применяем скрещивание к выбранной популяции
-        population = crossover_population(selected_population)
-    best_rho = find_best(population)[0]
-    best_y = find_best(population)[1]
+        print(population)
+        population = crossover_population(population)
+        result = find_best(best_rho, best_y, population)
+        print(f"result: {result}")
+        best_rho = result[0]
+        best_y = result[1]
+    print(best_rho)
+    print(best_y)
     return best_rho, best_y
 
-print(genetic(10, 3))
+
+
+genetic(10,5)

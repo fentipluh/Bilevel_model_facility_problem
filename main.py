@@ -64,6 +64,7 @@ def find_new_b(b, c, vector):
     strings = np.where(vector == 1)[0]
     new_c = c[strings, :]
     min_values = np.min(new_c, axis = 0)
+    print(min_values)
     result = b - min_values
     result.sort()
     return result
@@ -89,9 +90,12 @@ def SP(new_b):
         i += 1
 
     return max_income
-def RF(new_b):
+def RF(new_b, y):
+    total_cost = 0
+    for i in range(n):
+        total_cost += f[i]*y[i]
     i = 2
-    rho_star = (new_b[0] - V / m)
+    rho_star = (new_b[0] - (V + total_cost)/ m)
     count = 0
 
     while i <= m:
@@ -103,15 +107,15 @@ def RF(new_b):
         else:
             count = 0
 
-        if (new_b[i - 1] - V / (m - i + 1 + count)) > rho_star:
-            rho_star = (new_b[i - 1] - V / (m - i + 1 + count))
+        if (new_b[i - 1] - (V+total_cost) / (m - i + 1 + count)) > rho_star:
+            rho_star = (new_b[i - 1] - (V + total_cost) / (m - i + 1 + count))
 
         i += 1
     return rho_star
 def generate_first_vector(n):
     return np.random.randint(0, 2, size=n)
 
-def first_criterion(f , vector):
+def first_criterion(vector):
     new_b = find_new_b(b, c, vector)
     term1 = SP(new_b)
     # Вычисление второго слагаемого
@@ -128,13 +132,22 @@ def local_search_RF(y, k):
     best_b = find_new_b(b, c, best_y)
     for neighbor in neighbors:
         temp_b = find_new_b(b, c, neighbor)
-        if(RF(temp_b) >= RF(best_b)):
+        if(RF(temp_b, neighbor) >= RF(best_b, best_y)):
             best_y = neighbor
             best_b = temp_b
     return best_y
 
-
-
+def local_search_SP(y, k):
+    for i in range(1,k):
+        best_y = y
+        neighbors = k_shake(y, i)
+        best_b = find_new_b(b, c, best_y)
+        for neighbor in neighbors:
+            temp_b = find_new_b(b, c, neighbor)
+            if(first_criterion(neighbor) >= first_criterion(best_y)):
+                best_y = neighbor
+                best_b = temp_b
+    return best_y
 # Данные для задачи
 with open('input.txt', 'r') as file:
     line = file.readline().strip()
@@ -148,29 +161,33 @@ b = np.loadtxt('input_b.txt')
 c = np.loadtxt('input_c.txt')
 T = 10
 #f = generate_f(n)
-f = [0] * n
-V = 5
+f = [15] * n
+V = 30
+total_cost = 0
 
+def VND_1(Imax, k):
+    I = 0
+    y = generate_first_vector(n)
+    while I < Imax:
+        y_star = local_search_SP(y, k)
+        I += 1
+        if I > Imax or hamming_distance(y, y_star) == 0:
+            break
+    return y_star
 
 def VND_2(Imax, k):
     I = 0
     y = generate_first_vector(n)
-    # print(RF(find_new_b(b,c,y)))
-    # print(y)
     while I < Imax:
         y_star = local_search_RF(y, k)
-        #print(f"{y}, {I}: {y_star}")
         I += 1
         if I > Imax or hamming_distance(y, y_star) == 0:
             break
 
     return y_star
 def main():
-    y_star = VND_2(100, 1)
-    y_star = VND_2(100, 2)
-    y_star = VND_2(100, 3)
-    print(y_star)
-    b_star = find_new_b(b,c,y_star)
-    print(RF(b_star))
-
-main()
+     y_star = VND_2(1000, 3)
+     print(y_star)
+     b_star = find_new_b(b,c,y_star)
+     print(RF(b_star, y_star))
+#main()

@@ -9,13 +9,13 @@ with open('input.txt', 'r') as file:
     n = int(data[0])
     m = int(data[1])
 
-f= [0] * n
-V = 5
+f= [15] * n
+V = 30
 
 c = np.loadtxt('input_c.txt')
 b = np.loadtxt('input_b.txt')
 
-W = 101
+W = 150
 
 model = Model(sense=MAXIMIZE, solver_name=CBC)
 model.verbose = 0
@@ -25,10 +25,9 @@ p = model.add_var()
 rho = model.add_var()
 x = [[model.add_var(var_type=BINARY) for j in range(m)] for i in range(n)]
 y = [ model.add_var(name = 'y', var_type=BINARY) for i in range(n) ]
-z = [[model.add_var(var_type=INTEGER) for j in range(m)] for i in range(n)]
-r = [[model.add_var(var_type=INTEGER) for j in range(m)] for i in range(n)]
-#y = [1 ,0 ,0 ,1 ,0 ,1 ,1 ,0 ,1 ,1 ,0 ,0 ,1 ,0 ,1]
-#objective function
+z = [[model.add_var() for j in range(m)] for i in range(n)]
+r = [[model.add_var() for j in range(m)] for i in range(n)]
+
 model.objective = maximize(rho) #1
 
 # constraints
@@ -37,7 +36,6 @@ model.objective = maximize(rho) #1
 #model += xsum((z[i][j] for i in range (n) for j in range (m)) - ((f[i]*y[i]) for i in range (n) for j in range (m)))
 model += (xsum(z[i][j] for i in range (n) for j in range(m)) - xsum(f[i]*y[i] for i in range(n))) >= V #(2)
 
-#model += xsum(y[i] for i in range (n)) == 3
 
 for i in range(n):
     for j in range(m):
