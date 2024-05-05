@@ -15,7 +15,12 @@ V = 30
 c = np.loadtxt('input_c.txt')
 b = np.loadtxt('input_b.txt')
 
-W = 150
+difference = b - c
+
+# Находим максимальное значение по всем элементам полученной матрицы
+W = np.max(difference)
+
+print("Максимальное значение (W) =", W)
 
 model = Model(sense=MAXIMIZE, solver_name=CBC)
 model.verbose = 0

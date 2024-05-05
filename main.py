@@ -61,43 +61,41 @@ def find_best_neighbor_SP(neighbors):
 
 
 def find_new_b(b, c, vector):
-    strings = np.where(vector == 1)[0]
-    new_c = c[strings, :]
-    min_values = np.min(new_c, axis = 0)
-    print(min_values)
-    result = b - min_values
-    result.sort()
-    return result
-def SP(new_b):
-    m = len(new_b) - 1   # Размер вектора b
+    if (sum(vector) != 0):
+        strings = np.where(vector == 1)[0]
+        new_c = c[strings, :]
+        min_values = np.min(new_c, axis = 0)
+        result = b - min_values
+        result.sort()
+        return result
+    else:
+        return [0]*m
+
+
+def SP(new_b, y):
+    total_cost = sum(f[i] * y[i] for i in range(n))
     i = 2
     p_star = new_b[0]
     count = 0
     max_income = p_star * m
-
     while i <= m:
         if i > m:
             break
-        if new_b[i - 1] == new_b[i]:
+        if new_b[i - 2] == new_b[i - 1]:
             count += 1
         else:
             count = 0
-
-        if new_b[i] * (m - i + 1 + count) > max_income:
-            p_star = new_b[i]
-            max_income = new_b[i] * (m - i + 1 + count)
-
+        if  new_b[i - 1] * (m - i + 1 + count) > max_income:
+            p_star = new_b[i-1]
+            max_income = new_b[i - 1] * (m - i + 1 + count)
         i += 1
+    return p_star - total_cost
 
-    return max_income
 def RF(new_b, y):
-    total_cost = 0
-    for i in range(n):
-        total_cost += f[i]*y[i]
+    total_cost = sum(f[i] * y[i] for i in range(n))
     i = 2
     rho_star = (new_b[0] - (V + total_cost)/ m)
     count = 0
-
     while i <= m:
         if i > m:
             break
@@ -115,39 +113,10 @@ def RF(new_b, y):
 def generate_first_vector(n):
     return np.random.randint(0, 2, size=n)
 
-def first_criterion(vector):
-    new_b = find_new_b(b, c, vector)
-    term1 = SP(new_b)
-    # Вычисление второго слагаемого
-    term2 = -np.sum(f * vector)
-    # Вычисление итогового значения формулы
-    result = term1 + term2
-    return result
 def generate_f(n):
     random.seed(42)
     return np.random.randint(0, 100, size=n)
-def local_search_RF(y, k):
-    best_y = y
-    neighbors = k_shake(y, k)
-    best_b = find_new_b(b, c, best_y)
-    for neighbor in neighbors:
-        temp_b = find_new_b(b, c, neighbor)
-        if(RF(temp_b, neighbor) >= RF(best_b, best_y)):
-            best_y = neighbor
-            best_b = temp_b
-    return best_y
 
-def local_search_SP(y, k):
-    for i in range(1,k):
-        best_y = y
-        neighbors = k_shake(y, i)
-        best_b = find_new_b(b, c, best_y)
-        for neighbor in neighbors:
-            temp_b = find_new_b(b, c, neighbor)
-            if(first_criterion(neighbor) >= first_criterion(best_y)):
-                best_y = neighbor
-                best_b = temp_b
-    return best_y
 # Данные для задачи
 with open('input.txt', 'r') as file:
     line = file.readline().strip()
@@ -155,13 +124,10 @@ with open('input.txt', 'r') as file:
     # Присваиваем значения переменным
     n = int(numbers[0])  # кол-во предприятий
     m = int(numbers[1])  # кол-во клиентов
-#facility_amount = int(numbers[2])  # кол-во открываемых предприятий
 
 b = np.loadtxt('input_b.txt')
 c = np.loadtxt('input_c.txt')
-T = 10
-#f = generate_f(n)
-f = [15] * n
+f = [10] * n
 V = 30
 total_cost = 0
 

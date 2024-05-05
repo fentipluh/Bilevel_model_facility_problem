@@ -11,20 +11,20 @@ def find_new_b_1(b, c, vector):
         result.sort()
         return result
     else:
-        return [0] * m
+        return [0]*m
+
 
 # константы задачи
 ONE_MAX_LENGTH = n    # длина подлежащей оптимизации битовой строки
 
 # константы генетического алгоритма
-POPULATION_SIZE = 500   # количество индивидуумов в популяции
-P_CROSSOVER = 0.9       # вероятность скрещивания
-P_MUTATION = 0.1        # вероятность мутации индивидуума
-MAX_GENERATIONS = 10000    # максимальное количество поколений
+POPULATION_SIZE = 1000   # количество индивидуумов в популяции
+P_CROSSOVER = 1      # вероятность скрещивания
+P_MUTATION = 0.1       # вероятность мутации индивидуума
+MAX_GENERATIONS = 100  # максимальное количество поколений
 
 RANDOM_SEED = 42
 random.seed(RANDOM_SEED)
-
 
 class FitnessMax():
     def __init__(self):
@@ -39,7 +39,8 @@ class Individual(list):
 
 def oneMaxFitness(individual):
     temp_b = find_new_b_1(b, c, individual)
-    return (RF(temp_b, individual)),
+    cost = SP(temp_b, individual)
+    return (cost),
 
 def individualCreator():
     return Individual([random.randint(0, 1) for i in range(ONE_MAX_LENGTH)])
@@ -79,6 +80,24 @@ def cxOnePoint(child1, child2):
     s = random.randint(2, len(child1)-3)
     child1[s:], child2[s:] = child2[s:], child1[s:]
 
+# def cxOnePoint(child1, child2):
+#     # Create a list to store the crossover result
+#     # Create a list to store the crossover result
+#     result1 = []
+#     result2 = []
+#
+#     # Perform uniform crossover
+#     for gene1, gene2 in zip(child1, child2):
+#         if random.choice([True, False]):
+#             result1.append(gene2)
+#             result2.append(gene1)
+#         else:
+#             result1.append(gene1)
+#             result2.append(gene2)
+#
+#     return result1, result2
+
+
 def mutFlipBit(mutant, indpb=0.01):
     for indx in range(len(mutant)):
         if random.random() < indpb:
@@ -86,9 +105,10 @@ def mutFlipBit(mutant, indpb=0.01):
 
 
 fitnessValues = [individual.fitness.values for individual in population]
-counter = 0
-previous_fitness = 0
-while generationCounter < MAX_GENERATIONS and counter <= 10:
+print(fitnessValues)
+best_b = [0]*m
+best_y = [0]*n
+while generationCounter < MAX_GENERATIONS:
     generationCounter += 1
     offspring = selTournament(population, len(population))
     offspring = list(map(clone, offspring))
@@ -106,21 +126,21 @@ while generationCounter < MAX_GENERATIONS and counter <= 10:
         individual.fitness.values = fitnessValue
 
     population[:] = offspring
-
     fitnessValues = [ind.fitness.values[0] for ind in population]
-
     maxFitness = max(fitnessValues)
     meanFitness = sum(fitnessValues) / len(population)
     maxFitnessValues.append(maxFitness)
     meanFitnessValues.append(meanFitness)
     print(f"Поколение {generationCounter}: Макс приспособ. = {maxFitness}, Средняя приспособ.= {meanFitness}")
-    if(previous_fitness == maxFitness):
-        counter += 1
-    else:
-        counter = 0
-    previous_fitness = maxFitness
     best_index = fitnessValues.index(max(fitnessValues))
     print("Лучший индивидуум = ", *population[best_index], "\n")
+    string = [*population[best_index]]
+    temp_b = find_new_b_1(b,c,string)
+    print(RF(temp_b, string))
+    if (RF(best_b, best_y) <= RF(temp_b, string)):
+        best_b = temp_b
+        best_y = string
+print(RF(best_b, best_y))
 
 plt.plot(maxFitnessValues, color='red')
 plt.plot(meanFitnessValues, color='green')
