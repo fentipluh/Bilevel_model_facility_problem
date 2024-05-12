@@ -1,6 +1,7 @@
 import sys
 import random
 import numpy as np
+import time
 
 def hamming_distance(y1, y2):
     return np.count_nonzero(y1 != y2)
@@ -117,18 +118,33 @@ def generate_f(n):
     random.seed(42)
     return np.random.randint(0, 100, size=n)
 
-# Данные для задачи
-with open('input.txt', 'r') as file:
-    line = file.readline().strip()
-    numbers = line.split()
-    # Присваиваем значения переменным
-    n = int(numbers[0])  # кол-во предприятий
-    m = int(numbers[1])  # кол-во клиентов
+# Путь к файлу input.txt
+for i in range(1,3):
+    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_100_100_{i}.txt'
 
-b = np.loadtxt('input_b.txt')
-c = np.loadtxt('input_c.txt')
-f = [10] * n
-V = 30
+# Инициализация переменных
+n, m = 0, 0
+c = None
+b = None
+
+with open(file_path, 'r') as file:
+    # Чтение первой строки и извлечение значений n и m
+    first_line = file.readline()
+    n, m = map(int, first_line.split())
+    # Чтение следующих n строк для создания матрицы A
+    c = np.zeros((n, m), dtype=np.float64)  # Создание матрицы с нужным размером
+    for i in range(n):
+        line = file.readline()
+        c[i] = np.array(line.split(), dtype=np.float64)
+
+    # Чтение последней строки для получения массива b
+    last_line = file.readline()
+    b = np.array(last_line.split(), dtype=np.float64)
+
+
+
+f = [0] * n
+V = 240
 total_cost = 0
 
 def VND_1(Imax, k):
