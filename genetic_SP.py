@@ -6,7 +6,7 @@ objective_list = []
 for i in range(1,3):
     print(i)
     # Путь к файлу input.txt
-    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_100_100_{i}.txt'
+    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_20_20_{i}.txt'
     # Инициализация переменных
     n, m = 0, 0
     c = None
@@ -66,7 +66,7 @@ for i in range(1,3):
 
     def oneMaxFitness(individual):
         temp_b = find_new_b_1(b, c, individual)
-        cost = SP(temp_b, individual)
+        cost = SP(temp_b, individual, f, n, m)
         return (cost),
 
     def individualCreator():
@@ -167,12 +167,12 @@ for i in range(1,3):
             count += 1
         else:
             count = 0
-        if (SP(best_b, best_y) <= SP(temp_b, string)):
+        if (SP(best_b, best_y, f,n,m) <= SP(temp_b, string,f,n,m)):
             best_b = temp_b
             best_y = string
 
 
-    best_rho = RF(best_b, best_y)
+    best_rho = RF(best_b, best_y, f, V, n, m)
     objective_list.append(best_rho)
     plt.plot(maxFitnessValues, color='red')
     plt.plot(meanFitnessValues, color='green')

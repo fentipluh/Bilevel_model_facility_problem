@@ -7,7 +7,7 @@ objective_list = []
 for i in range(1,3):
     print(i)
     # Путь к файлу input.txt
-    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_100_100_{i}.txt'
+    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_20_20_{i}.txt'
     # Инициализация переменных
     n, m = 0, 0
     c = None
@@ -65,7 +65,7 @@ for i in range(1,3):
 
     def oneMaxFitness(individual):
         temp_b = find_new_b_1(b, c, individual)
-        return (RF(temp_b, individual)),
+        return (RF(temp_b, individual, f, V, n ,m)),
 
     def individualCreator():
         return Individual([random.randint(0, 1) for i in range(ONE_MAX_LENGTH)])

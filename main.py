@@ -61,7 +61,7 @@ def find_best_neighbor_SP(neighbors):
     return best_vector
 
 
-def find_new_b(b, c, vector):
+def find_new_b(b, c, vector, m):
     if (sum(vector) != 0):
         strings = np.where(vector == 1)[0]
         new_c = c[strings, :]
@@ -73,8 +73,8 @@ def find_new_b(b, c, vector):
         return [0]*m
 
 
-def SP(new_b, y):
-    total_cost = sum(f[i] * y[i] for i in range(n))
+def SP(new_b, y, f, n, m):
+    total_cost = sum(f[i] * y[i] for i in range(len(f)))
     i = 2
     p_star = new_b[0]
     count = 0
@@ -92,8 +92,8 @@ def SP(new_b, y):
         i += 1
     return p_star - total_cost
 
-def RF(new_b, y):
-    total_cost = sum(f[i] * y[i] for i in range(n))
+def RF(new_b, y, f, V, n, m):
+    total_cost = sum(f[i] * y[i] for i in range(len(f)))
     i = 2
     rho_star = (new_b[0] - (V + total_cost)/ m)
     count = 0
@@ -117,59 +117,3 @@ def generate_first_vector(n):
 def generate_f(n):
     random.seed(42)
     return np.random.randint(0, 100, size=n)
-
-# Путь к файлу input.txt
-for i in range(1,3):
-    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_100_100_{i}.txt'
-
-# Инициализация переменных
-n, m = 0, 0
-c = None
-b = None
-
-with open(file_path, 'r') as file:
-    # Чтение первой строки и извлечение значений n и m
-    first_line = file.readline()
-    n, m = map(int, first_line.split())
-    # Чтение следующих n строк для создания матрицы A
-    c = np.zeros((n, m), dtype=np.float64)  # Создание матрицы с нужным размером
-    for i in range(n):
-        line = file.readline()
-        c[i] = np.array(line.split(), dtype=np.float64)
-
-    # Чтение последней строки для получения массива b
-    last_line = file.readline()
-    b = np.array(last_line.split(), dtype=np.float64)
-
-
-
-f = [0] * n
-V = 240
-total_cost = 0
-
-def VND_1(Imax, k):
-    I = 0
-    y = generate_first_vector(n)
-    while I < Imax:
-        y_star = local_search_SP(y, k)
-        I += 1
-        if I > Imax or hamming_distance(y, y_star) == 0:
-            break
-    return y_star
-
-def VND_2(Imax, k):
-    I = 0
-    y = generate_first_vector(n)
-    while I < Imax:
-        y_star = local_search_RF(y, k)
-        I += 1
-        if I > Imax or hamming_distance(y, y_star) == 0:
-            break
-
-    return y_star
-def main():
-     y_star = VND_2(1000, 3)
-     print(y_star)
-     b_star = find_new_b(b,c,y_star)
-     print(RF(b_star, y_star))
-#main()

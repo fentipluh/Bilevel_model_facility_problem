@@ -6,7 +6,7 @@ objective_list = []
 for i in range(1,3):
     print(i)
     # Путь к файлу input.txt
-    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_100_100_{i}.txt'
+    file_path = f'C:/Users/Fentipluh/PycharmProjects/diploma/dataset/gen_20_20_{i}.txt'
     # Инициализация переменных
     n, m = 0, 0
     c = None
@@ -32,19 +32,19 @@ for i in range(1,3):
         best_y = y
         neighbors = k_shake(y,1)
         for neighbor in neighbors:
-            if RF(find_new_b(b,c,neighbor), neighbor) > RF(find_new_b(b,c,best_y), best_y):
+            if RF(find_new_b(b,c,neighbor,m), neighbor, f, V,n ,m) > RF(find_new_b(b,c,best_y,m), best_y, f, V, n, m):
                 best_y = neighbor
         if np.array_equal(y,best_y):
             neighbors = k_shake(best_y,2)
             for neighbor in neighbors:
-                if RF(find_new_b(b, c, neighbor), neighbor) > RF(find_new_b(b, c, best_y), best_y):
+                if RF(find_new_b(b, c, neighbor,m), neighbor, f, V, n, m) > RF(find_new_b(b, c, best_y,m), best_y, f, V, n, m):
                     best_y = neighbor
         else:
             return best_y
         if np.array_equal(y,best_y):
             neighbors = k_shake(best_y,3)
             for neighbor in neighbors:
-                if RF(find_new_b(b, c, neighbor), neighbor) > RF(find_new_b(b, c, best_y), best_y):
+                if RF(find_new_b(b, c, neighbor,m), neighbor, f, V, n, m) > RF(find_new_b(b, c, best_y,m), best_y, f, V, n, m):
                     best_y = neighbor
         else:
             return best_y
@@ -56,18 +56,18 @@ for i in range(1,3):
         count = 0
         y = generate_first_vector(n)
         while I < Imax and count < 1:
-            previous_fitness = RF(find_new_b(b,c,y),y)
+            previous_fitness = RF(find_new_b(b,c,y,m),y, f, V, n ,m)
             previous_y = y
             y = local_search_RF(y)
             I += 1
-            new_fitness = RF(find_new_b(b,c,y),y)
+            new_fitness = RF(find_new_b(b,c,y,m),y,f,V,n,m)
             if hamming_distance(y,previous_y) == 0:
                 count += 1
             else:
                 count = 0
         return y
     best_y = VND(100)
-    best_rho = RF(find_new_b(b,c,best_y), best_y)
+    best_rho = RF(find_new_b(b,c,best_y, m), best_y, f, V, n, m)
     print(best_rho)
     objective_list.append(best_rho)
     end_time = time.time()
